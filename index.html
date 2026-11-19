@@ -93,22 +93,22 @@ $('help').textContent = TOUCH ? 'desliza para orbitar · pellizca para acercar �
   : 'arrastra para orbitar · toca a kitty, spidey o el corazón del centro ❤';
 
 const MSGS = [
- 'Si el universo tiene un centro, para mí eres tú. Todo lo que soy gira despacio alrededor de tu nombre.',
- 'Como un hilo que se sostiene firme, yo me sostengo de ti: sin miedo, porque sé que nunca me sueltas.',
- 'Eres mi cielo favorito: ese al que vuelvo incluso cuando el día se pone gris.',
- 'Mi mayor suerte no fue una estrella fugaz: fue coincidir contigo en este universo enorme.',
- 'Contigo por siempre no es una promesa grande; es un plan pequeño que se repite cada día.',
- 'En cada universo posible te buscaría, y en cada uno te volvería a elegir.',
- 'Mi lugar favorito no tiene dirección: tiene tus brazos.',
- 'Te elijo hoy, mañana y en todos los días que todavía no tienen nombre.',
- 'Eres mi persona favorita: la única con quien hasta el silencio es bonito.',
- 'Contigo hasta el infinito… y si el infinito se acaba, un poquito más.',
- 'Mi hogar tiene tu nombre y tu risa esperándome en la puerta.',
- 'Gracias por existir en mi órbita: desde que llegaste, hasta la gravedad es amable.',
- 'No necesito que el universo sea perfecto; me alcanza con que tú estés en él.',
- 'Cada vez que te miro, el corazón se me adelanta un latido, como si ya supiera que eres tú.',
- 'Eres la calma después de mi tormenta y la chispa antes de mi sonrisa.',
- 'Si me preguntan qué es el amor, digo tu nombre y dejo que el universo explique el resto.'
+ 'Si el universo tuviera un centro, sería el lugar donde estás tú.',
+ 'Eres la razón por la que mis días brillan, incluso cuando el cielo está nublado.',
+ 'Te elijo en cada amanecer, en cada estrella y en cada silencio que compartimos.',
+ 'No sé cuántas galaxias existen, pero sé que la más bonita es la que tiene tu sonrisa.',
+ 'Contigo, hasta lo más simple se vuelve un recuerdo que quiero guardar para siempre.',
+ 'Si volviera a nacer en cualquier universo, te buscaría en todos hasta encontrarte.',
+ 'Mi lugar favorito no tiene coordenadas: está en tus abrazos.',
+ 'Te quiero hoy, mañana y en todos los días que todavía no tienen nombre.',
+ 'Eres mi persona favorita, la única con quien hasta el silencio suena a música.',
+ 'Te amo más que a todas las estrellas juntas, y cada día descubro una más.',
+ 'Mi hogar no es un lugar: es la forma en que me miras.',
+ 'Gracias por llegar a mi vida y hacer que hasta los días grises tengan luz.',
+ 'No necesito un cielo perfecto, solo uno donde estés tú.',
+ 'Cuando te miro, mi corazón late como si reconociera a la persona de su vida.',
+ 'Eres la calma después de mi tormenta y la chispa que ilumina mi sonrisa.',
+ 'Si alguien me pregunta qué es el amor, le digo tu nombre y dejo que el universo explique el resto.'
 ];
 const LETTERS = [
  ['Cada cosa importante cae hacia lo que ama, y yo aprendí a caer hacia ti sin miedo a estrellarme. Tu gravedad es la única que me sostiene los días en que todo pesa.',
@@ -179,7 +179,7 @@ function drawSpidey(){
 const STICKER_URL = 'IMG_1168-Photoroom.png';
 const STK_MATS = [];
 function applyCuts(){
-  if (!THREE) return;
+  if (!STK_MATS.length) return;
   const tex = new THREE.TextureLoader().load(STICKER_URL);
   STK_MATS.forEach(m => { m.map = tex; m.opacity = 1; m.needsUpdate = true; });
 }
