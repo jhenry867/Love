@@ -176,12 +176,13 @@ function drawSpidey(){
   return c.toDataURL();
 }
 
-const STICKER_URL = 'IMG_1168-Photoroom.png';
+const STICKER_URLS = ['IMG_1168-Photoroom.png', 'IMG_1169-Photoroom.png'];
+const STICKER_URL = STICKER_URLS[0];
 const STK_MATS = [];
 function applyCuts(){
   if (!STK_MATS.length) return;
-  const tex = new THREE.TextureLoader().load(STICKER_URL);
-  STK_MATS.forEach(m => { m.map = tex; m.opacity = 1; m.needsUpdate = true; });
+  const texs = STICKER_URLS.map(u => new THREE.TextureLoader().load(u));
+  STK_MATS.forEach((m, i) => { m.map = texs[i % 2]; m.opacity = 1; m.needsUpdate = true; });
 }
 // JPEG no tiene transparencia: quita el blanco conectado a los bordes, sin tocar el blanco interno
 function cutout(src, cb){
@@ -396,7 +397,7 @@ function openModal(id){ $(id).classList.add('on'); chime(); }
 function closeModals(){ document.querySelectorAll('.modal.on').forEach(m => m.classList.remove('on')); }
 function openMsg(i){
   $('msgTxt').textContent = MSGS[i];
-  $('msgImg').src = STICKER_URL;
+  $('msgImg').src = STICKER_URLS[i % 2];
   openModal('msg');
 }
 let li = 0;
