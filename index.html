@@ -176,6 +176,30 @@ function drawSpidey(){
   return c.toDataURL();
 }
 const kittyURL = drawKitty(), spideyURL = drawSpidey();
+const STICKER_FILES = ['IMG_1168.jpeg', 'IMG_1169.jpeg'];
+// JPEG no tiene transparencia: quita el blanco conectado a los bordes, sin tocar el blanco interno
+function cutout(src, cb){
+  const im = new Image();
+  im.onload = () => {
+    const c = document.createElement('canvas'); c.width = im.width; c.height = im.height;
+    const x = c.getContext('2d'); x.drawImage(im, 0, 0);
+    const d = x.getImageData(0, 0, c.width, c.height), p = d.data, W = c.width, H = c.height;
+    const seen = new Uint8Array(W*H), white = q => p[q*4] > 225 && p[q*4+1] > 225 && p[q*4+2] > 225, st = [];
+    for (let i = 0; i < W; i++) st.push(i, (H-1)*W + i);
+    for (let j = 0; j < H; j++) st.push(j*W, j*W + W-1);
+    while (st.length) {
+      const q = st.pop();
+      if (seen[q] || !white(q)) continue;
+      seen[q] = 1; p[q*4+3] = 0;
+      const xq = q % W;
+      if (xq > 0) st.push(q-1); if (xq < W-1) st.push(q+1);
+      if (q >= W) st.push(q-W); if (q < W*(H-1)) st.push(q+W);
+    }
+    x.putImageData(d, 0, 0); cb(c.toDataURL());
+  };
+  im.onerror = () => cb(null);
+  im.src = src;
+}
 const kittyImg = new Image(); kittyImg.src = kittyURL;
 const spideyImg = new Image(); spideyImg.src = spideyURL;
 
@@ -319,7 +343,7 @@ function buildScene(){
   const TL = new THREE.TextureLoader();
   for (let i = 0; i < 16; i++) {
     const mat = new THREE.SpriteMaterial({ map: TL.load(kittyURL), transparent: true, depthWrite: false });
-    if (i < 2) TL.load(`sticker${i+1}.png`, t => { mat.map = t; mat.needsUpdate = true; });
+    if (i < 2) cutout(STICKER_FILES[i], url => { if (url) TL.load(url, t => { mat.map = t; mat.needsUpdate = true; }); });
     const s = new THREE.Sprite(mat);
     s.userData = { msg: i, r: 12 + (i%4)*4 + Math.random()*2, h: (Math.random()-.5)*8, sp: .08+Math.random()*.1, ph: i*(6.283/16)+Math.random()*.4, k: 1, hv: false };
     U.add(s); stickers.push(s);
@@ -360,8 +384,8 @@ function openModal(id){ $(id).classList.add('on'); chime(); }
 function closeModals(){ document.querySelectorAll('.modal.on').forEach(m => m.classList.remove('on')); }
 function openMsg(i){
   $('msgTxt').textContent = MSGS[i];
-  const im = $('msgImg'); im.onerror = null; im.src = i < 2 ? `sticker${i+1}.png` : kittyURL;
-  im.onerror = () => { im.onerror = null; im.src = kittyURL; };
+  const im = $('msgImg'); im.src = kittyURL;
+  if (i < 2) cutout(STICKER_FILES[i], url => { if (url) im.src = url; });
   openModal('msg');
 }
 let li = 0;
