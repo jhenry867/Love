@@ -175,8 +175,12 @@ function drawSpidey(){
   x.beginPath(); x.moveTo(178,96); x.quadraticCurveTo(176,70,148,80); x.quadraticCurveTo(146,104,172,118); x.closePath(); x.fill(); x.stroke();
   return c.toDataURL();
 }
-const kittyURL = drawKitty(), spideyURL = drawSpidey();
-const STICKER_FILES = ['IMG_1168.jpeg', 'IMG_1169.jpeg'];
+
+const STICKER_FILES = ['IMG_1168-Photoroom.png', 'IMG_1169-Photoroom.png'];
+const CUTS = [null, null], STK_MATS = [];
+function applyCuts(){
+  STK_MATS.forEach((m, i) => { if (CUTS[i % 2]) { m.map = new THREE.TextureLoader().load(CUTS[i % 2]); m.opacity = 1; m.needsUpdate = true; } });
+}
 // JPEG no tiene transparencia: quita el blanco conectado a los bordes, sin tocar el blanco interno
 function cutout(src, cb){
   const im = new Image();
@@ -184,7 +188,10 @@ function cutout(src, cb){
     const c = document.createElement('canvas'); c.width = im.width; c.height = im.height;
     const x = c.getContext('2d'); x.drawImage(im, 0, 0);
     const d = x.getImageData(0, 0, c.width, c.height), p = d.data, W = c.width, H = c.height;
-    const seen = new Uint8Array(W*H), white = q => p[q*4] > 225 && p[q*4+1] > 225 && p[q*4+2] > 225, st = [];
+    const seen = new Uint8Array(W*H), st = [];
+    const cr = [0, 0, 0];
+    [0, W-1, (H-1)*W, H*W-1].forEach(q => { for (let k = 0; k < 3; k++) cr[k] += p[q*4+k] / 4; });
+    const white = q => Math.abs(p[q*4]-cr[0]) + Math.abs(p[q*4+1]-cr[1]) + Math.abs(p[q*4+2]-cr[2]) < 90;
     for (let i = 0; i < W; i++) st.push(i, (H-1)*W + i);
     for (let j = 0; j < H; j++) st.push(j*W, j*W + W-1);
     while (st.length) {
@@ -200,8 +207,11 @@ function cutout(src, cb){
   im.onerror = () => cb(null);
   im.src = src;
 }
-const kittyImg = new Image(); kittyImg.src = kittyURL;
-const spideyImg = new Image(); spideyImg.src = spideyURL;
+const kittyImg = new Image();
+
+STICKER_FILES.forEach((f, k) => { CUTS[k] = f; });
+kittyImg.src = CUTS[0];
+applyCuts();
 
 /* ---------- entrada animada ---------- */
 const pc = $('pet').getContext('2d');
@@ -284,7 +294,7 @@ function buildScene(){
 
   composer = new EC.EffectComposer(renderer);
   composer.addPass(new RP.RenderPass(scene, camera));
-  composer.addPass(new UB.UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), .55, .5, .22));
+  composer.addPass(new UB.UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), .28, .4, .55));
   composer.addPass(new OP.OutputPass());
 
   // estrellas de fondo
@@ -307,7 +317,7 @@ function buildScene(){
   }
   const gg = new THREE.BufferGeometry();
   gg.setAttribute('position', new THREE.BufferAttribute(gp,3)); gg.setAttribute('color', new THREE.BufferAttribute(gc,3));
-  galaxy = new THREE.Points(gg, new THREE.PointsMaterial({ size: .34, vertexColors: true, transparent: true, opacity: .85, blending: THREE.AdditiveBlending, depthWrite: false }));
+  galaxy = new THREE.Points(gg, new THREE.PointsMaterial({ size: .34, vertexColors: true, transparent: true, opacity: .6, blending: THREE.AdditiveBlending, depthWrite: false }));
   U.add(galaxy);
 
   // agujero negro + anillo + halo
@@ -328,7 +338,7 @@ function buildScene(){
     hp.set([x*s*.2, y*s*.2, (Math.random()-.5)*1.5], i*3);
   }
   const hg = new THREE.BufferGeometry(); hg.setAttribute('position', new THREE.BufferAttribute(hp,3));
-  heartPts = new THREE.Points(hg, new THREE.PointsMaterial({ color: 0xf472b6, size: .16, transparent: true, opacity: .9, blending: THREE.AdditiveBlending, depthWrite: false }));
+  heartPts = new THREE.Points(hg, new THREE.PointsMaterial({ color: 0xf472b6, size: .16, transparent: true, opacity: .6, blending: THREE.AdditiveBlending, depthWrite: false }));
   heartG.add(heartPts);
   hitHeart = new THREE.Mesh(new THREE.SphereGeometry(4,16,16), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
   hitHeart.userData.letters = true; heartG.add(hitHeart);
@@ -342,8 +352,8 @@ function buildScene(){
   // stickers orbitando (16): imagen del repo o dibujo propio
   const TL = new THREE.TextureLoader();
   for (let i = 0; i < 16; i++) {
-    const mat = new THREE.SpriteMaterial({ map: TL.load(kittyURL), transparent: true, depthWrite: false });
-    if (i < 2) cutout(STICKER_FILES[i], url => { if (url) TL.load(url, t => { mat.map = t; mat.needsUpdate = true; }); });
+    const mat = new THREE.SpriteMaterial({ color: new THREE.Color(.5, .5, .5), transparent: true, opacity: 0, depthWrite: false });
+    STK_MATS.push(mat);
     const s = new THREE.Sprite(mat);
     s.userData = { msg: i, r: 12 + (i%4)*4 + Math.random()*2, h: (Math.random()-.5)*8, sp: .08+Math.random()*.1, ph: i*(6.283/16)+Math.random()*.4, k: 1, hv: false };
     U.add(s); stickers.push(s);
@@ -368,6 +378,7 @@ function buildScene(){
   const wg = new THREE.BufferGeometry(); wg.setAttribute('position', new THREE.BufferAttribute(warpP,3));
   warp = new THREE.LineSegments(wg, new THREE.LineBasicMaterial({ color: 0xf4c2dc, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
   warp.visible = false; scene.add(warp);
+  applyCuts();
 }
 
 /* ---------- interacción ---------- */
@@ -384,8 +395,7 @@ function openModal(id){ $(id).classList.add('on'); chime(); }
 function closeModals(){ document.querySelectorAll('.modal.on').forEach(m => m.classList.remove('on')); }
 function openMsg(i){
   $('msgTxt').textContent = MSGS[i];
-  const im = $('msgImg'); im.src = kittyURL;
-  if (i < 2) cutout(STICKER_FILES[i], url => { if (url) im.src = url; });
+  if (CUTS[i % 2]) $('msgImg').src = CUTS[i % 2];
   openModal('msg');
 }
 let li = 0;
@@ -425,7 +435,7 @@ $('go').onclick = enter;
 function buildLight(){
   const L = $('light'); L.style.display = 'flex';
   for (let i = 0; i < 16; i++) {
-    const b = document.createElement('button'); b.textContent = 'Kitty';
+    const b = document.createElement('button'); b.textContent = String(i + 1);
     b.onclick = () => openMsg(i); L.appendChild(b);
   }
   const h = document.createElement('button'); h.textContent = '❤ cartas'; h.onclick = openLetters; L.appendChild(h);
