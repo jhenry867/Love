@@ -176,10 +176,12 @@ function drawSpidey(){
   return c.toDataURL();
 }
 
-const STICKER_FILES = ['IMG_1168-Photoroom.png', 'IMG_1169-Photoroom.png'];
-const CUTS = [null, null], STK_MATS = [];
+const STICKER_URL = 'IMG_1168-Photoroom.png';
+const STK_MATS = [];
 function applyCuts(){
-  STK_MATS.forEach((m, i) => { if (CUTS[i % 2]) { m.map = new THREE.TextureLoader().load(CUTS[i % 2]); m.opacity = 1; m.needsUpdate = true; } });
+  if (!THREE) return;
+  const tex = new THREE.TextureLoader().load(STICKER_URL);
+  STK_MATS.forEach(m => { m.map = tex; m.opacity = 1; m.needsUpdate = true; });
 }
 // JPEG no tiene transparencia: quita el blanco conectado a los bordes, sin tocar el blanco interno
 function cutout(src, cb){
@@ -209,8 +211,7 @@ function cutout(src, cb){
 }
 const kittyImg = new Image();
 
-STICKER_FILES.forEach((f, k) => { CUTS[k] = f; });
-kittyImg.src = CUTS[0];
+kittyImg.src = STICKER_URL;
 applyCuts();
 
 /* ---------- entrada animada ---------- */
@@ -395,7 +396,7 @@ function openModal(id){ $(id).classList.add('on'); chime(); }
 function closeModals(){ document.querySelectorAll('.modal.on').forEach(m => m.classList.remove('on')); }
 function openMsg(i){
   $('msgTxt').textContent = MSGS[i];
-  if (CUTS[i % 2]) $('msgImg').src = CUTS[i % 2];
+  $('msgImg').src = STICKER_URL;
   openModal('msg');
 }
 let li = 0;
