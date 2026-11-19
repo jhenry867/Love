@@ -55,7 +55,7 @@ button:focus-visible{outline:2px solid var(--rose)}
 <button class="btn" id="mute" aria-label="Silenciar">🔊</button>
 <div id="head"><h1>Te Amo 💗</h1><p id="ded"></p></div>
 <div id="help"></div>
-<div id="mark"></div>
+
 <div id="toast"></div>
 <div id="light"></div>
 
@@ -88,7 +88,7 @@ const P = new URLSearchParams(location.search);
 const PARA = P.get('para') || 'PARA MI PRINCESITA', FIRMA = P.get('firma') || 'Siempre tuyo,', USER = P.get('user') || '@usuario';
 const TOUCH = matchMedia('(pointer:coarse)').matches;
 $('ded').textContent = PARA; $('ded2').textContent = PARA; $('sig').textContent = FIRMA;
-$('mark').textContent = `${USER} · hecho con ❤ y partículas`;
+
 $('help').textContent = TOUCH ? 'desliza para orbitar · pellizca para acercar · toca los stickers y el corazón ❤'
   : 'arrastra para orbitar · toca a kitty, spidey o el corazón del centro ❤';
 
@@ -295,7 +295,7 @@ function buildScene(){
 
   composer = new EC.EffectComposer(renderer);
   composer.addPass(new RP.RenderPass(scene, camera));
-  composer.addPass(new UB.UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), .28, .4, .55));
+  composer.addPass(new UB.UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), .45, .4, .55));
   composer.addPass(new OP.OutputPass());
 
   // estrellas de fondo
@@ -318,7 +318,7 @@ function buildScene(){
   }
   const gg = new THREE.BufferGeometry();
   gg.setAttribute('position', new THREE.BufferAttribute(gp,3)); gg.setAttribute('color', new THREE.BufferAttribute(gc,3));
-  galaxy = new THREE.Points(gg, new THREE.PointsMaterial({ size: .34, vertexColors: true, transparent: true, opacity: .6, blending: THREE.AdditiveBlending, depthWrite: false }));
+  galaxy = new THREE.Points(gg, new THREE.PointsMaterial({ size: .34, vertexColors: true, transparent: true, opacity: .85, blending: THREE.AdditiveBlending, depthWrite: false }));
   U.add(galaxy);
 
   // agujero negro + anillo + halo
@@ -339,7 +339,7 @@ function buildScene(){
     hp.set([x*s*.2, y*s*.2, (Math.random()-.5)*1.5], i*3);
   }
   const hg = new THREE.BufferGeometry(); hg.setAttribute('position', new THREE.BufferAttribute(hp,3));
-  heartPts = new THREE.Points(hg, new THREE.PointsMaterial({ color: 0xf472b6, size: .16, transparent: true, opacity: .6, blending: THREE.AdditiveBlending, depthWrite: false }));
+  heartPts = new THREE.Points(hg, new THREE.PointsMaterial({ color: 0xf472b6, size: .16, transparent: true, opacity: .8, blending: THREE.AdditiveBlending, depthWrite: false }));
   heartG.add(heartPts);
   hitHeart = new THREE.Mesh(new THREE.SphereGeometry(4,16,16), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
   hitHeart.userData.letters = true; heartG.add(hitHeart);
@@ -420,7 +420,7 @@ $('fs').onclick = () => document.fullscreenElement ? document.exitFullscreen() :
 
 /* ---------- secuencia: entrada → warp → revelación ---------- */
 function showUI(){
-  $('head').style.opacity = 1; $('mark').style.opacity = 1;
+  $('head').style.opacity = 1;
   const h = $('help'); h.style.opacity = 1; setTimeout(() => h.style.opacity = 0, 10000);
 }
 function enter(){
